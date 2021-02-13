@@ -1,5 +1,5 @@
 import ILoadUserRepository from '@/infra/repositories/load-user-repository-interface'
-import { MissingParamError } from '@/utils/errors'
+import { InvalidParamError, MissingParamError } from '@/utils/errors'
 
 class AuthUseCase {
   constructor (private readonly loadUserRepository: ILoadUserRepository) { }
@@ -7,6 +7,8 @@ class AuthUseCase {
   async auth (email: string, password: string): Promise<string> {
     if (!email) { throw new MissingParamError('email') }
     if (!password) { throw new MissingParamError('password') }
+    if (!this.loadUserRepository) { throw new MissingParamError('loadUserRepository') }
+    if (!this.loadUserRepository.load) { throw new InvalidParamError('loadUserRepository') }
 
     await this.loadUserRepository.load(email)
 
@@ -52,5 +54,21 @@ describe('Auth UseCase', function () {
     const { sut, loadUserRepositorySpy } = makeSut()
     await sut.auth('any@email.com', 'any_password')
     expect(loadUserRepositorySpy.email).toBe('any@email.com')
+  })
+
+  it('should throws if no LoadUserRepository is provided', function () {
+    const sut = new AuthUseCase(null as unknown as ILoadUserRepository)
+
+    const promise = sut.auth('any@email.com', 'any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('loadUserRepository'))
+  })
+
+  it('should throws if LoadUserRepository has no load method', function () {
+    const sut = new AuthUseCase({} as unknown as ILoadUserRepository)
+
+    const promise = sut.auth('any@email.com', 'any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new InvalidParamError('loadUserRepository'))
   })
 })
