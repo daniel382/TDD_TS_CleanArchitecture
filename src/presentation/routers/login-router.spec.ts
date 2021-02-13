@@ -19,6 +19,12 @@ function makeSut (): any {
   return { sut, authUseCaseSpy }
 }
 
+function makeSutWithInvalidAuthUseCase (authUseCase: any): any {
+  const sut = new LoginRouter(authUseCase)
+
+  return { sut }
+}
+
 describe('Login Router', function () {
   it('should return 500 if no httpRequest is provided', function () {
     const { sut } = makeSut()
@@ -84,5 +90,31 @@ describe('Login Router', function () {
     const httpResponse = sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(401)
     expect(httpResponse.body).toEqual(new UnauthorizedError())
+  })
+
+  it('should return 500 if no AuthUseCase is provided', function () {
+    const { sut } = makeSutWithInvalidAuthUseCase(null)
+    const httpRequest = {
+      body: {
+        email: 'any@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+  })
+
+  it('should return 500 if AuthUseCase has no auth method', function () {
+    const { sut } = makeSutWithInvalidAuthUseCase({})
+    const httpRequest = {
+      body: {
+        email: 'any@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
   })
 })

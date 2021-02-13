@@ -8,7 +8,7 @@ class LoginRouter {
   constructor (private readonly authUseCase: AuthUseCase) {}
 
   route (httpRequest: any): any {
-    if (!httpRequest || !httpRequest.body) {
+    if (!httpRequest || !httpRequest.body || !this.authUseCase || !this.authUseCase.auth) {
       return HttpResponse.serverError()
     }
 
