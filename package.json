@@ -4,8 +4,10 @@
   "description": "A simple authentication API implemented with typescript and clean architecture.",
   "main": "index.ts",
   "scripts": {
-    "test": "jest --no-cache --watchAll",
-    "test:staged": "jest --passWithNoTests"
+    "test": "jest --silent --colors --noStackTrace",
+    "test:unit": "yarn test -- --watch",
+    "test:staged": "yarn test -- --passWithNoTests --findRelatedTests",
+    "test:ci": "yarn test -- --coverage"
   },
   "author": "Daniel Lucas <daniellucas382@gmail.com>",
   "license": "MIT",
