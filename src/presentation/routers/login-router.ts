@@ -1,12 +1,9 @@
 import HttpResponse from '../helpers/http-response'
 import { InvalidParamError, MissingParamError } from '../errors'
+import LoginBodyValidator from '@/utils/login-body-validator'
 
 interface AuthUseCase {
   auth: (email: string, password: string) => string
-}
-
-interface LoginBodyValidator {
-  validateEmail: (email: string) => boolean
 }
 
 class LoginRouter {
