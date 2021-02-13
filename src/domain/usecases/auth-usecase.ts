@@ -4,7 +4,8 @@ import { InvalidParamError, MissingParamError } from '@/utils/errors'
 class AuthUseCase {
   constructor (
     private readonly loadUserRepository: ILoadUserRepository,
-    private readonly encrypterSpy: any
+    private readonly encrypter: any,
+    private readonly tokenGenerator: any
   ) { }
 
   async auth (email: string, password: string): Promise<string | null> {
@@ -13,14 +14,16 @@ class AuthUseCase {
 
     if (!this.loadUserRepository) { throw new MissingParamError('loadUserRepository') }
     if (!this.loadUserRepository.load) { throw new InvalidParamError('loadUserRepository') }
-    if (!this.encrypterSpy) { throw new MissingParamError('encrypterSpy') }
-    if (!this.encrypterSpy.compare) { throw new InvalidParamError('encrypterSpy') }
+    if (!this.encrypter) { throw new MissingParamError('encrypterSpy') }
+    if (!this.encrypter.compare) { throw new InvalidParamError('encrypterSpy') }
 
     const user = await this.loadUserRepository.load(email)
     if (!user) { return null }
 
-    const isEqual = await this.encrypterSpy.compare(password, user.password)
+    const isEqual = await this.encrypter.compare(password, user.password)
     if (!isEqual) { return null }
+
+    await this.tokenGenerator.generateToken(user._id)
 
     return 'any_token'
   }

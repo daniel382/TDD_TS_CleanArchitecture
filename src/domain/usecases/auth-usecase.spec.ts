@@ -5,15 +5,19 @@ import AuthUseCase from './auth-usecase'
 function makeSut (): any {
   const loadUserRepositorySpy = makeLoadUserRepositorySpy()
   const encrypterSpy = makeEncrypterSpy()
-  const sut = new AuthUseCase(loadUserRepositorySpy, encrypterSpy)
+  const tokenGeneratorSpy = makeTokenGeneratorSpy()
+  const sut = new AuthUseCase(loadUserRepositorySpy, encrypterSpy, tokenGeneratorSpy)
 
-  return { sut, loadUserRepositorySpy, encrypterSpy }
+  return { sut, loadUserRepositorySpy, encrypterSpy, tokenGeneratorSpy }
 }
 
 function makeLoadUserRepositorySpy (): any {
   class LoadUserRepositorySpy {
     email: string = ''
-    user: any = { password: 'hashed_password' }
+    user: any = {
+      _id: 'any_id',
+      password: 'hashed_password'
+    }
 
     async load (email: string): Promise<any> {
       this.email = email
@@ -41,6 +45,21 @@ function makeEncrypterSpy (): any {
   return new EncrypterSpy()
 }
 
+function makeTokenGeneratorSpy (): any {
+  class TokenGeneratorSpy {
+    userId: string = ''
+    generatedToken: string = 'any_token'
+
+    async generateToken (userId: string): Promise<string> {
+      this.userId = userId
+
+      return this.generatedToken
+    }
+  }
+
+  return new TokenGeneratorSpy()
+}
+
 describe('Auth UseCase', function () {
   it('should throws if no email is provided', function () {
     const { sut } = makeSut()
@@ -63,7 +82,11 @@ describe('Auth UseCase', function () {
   })
 
   it('should throws if no LoadUserRepository is provided', function () {
-    const sut = new AuthUseCase(null as unknown as ILoadUserRepository, {})
+    const sut = new AuthUseCase(
+      null as unknown as ILoadUserRepository,
+      {},
+      {}
+    )
 
     const promise = sut.auth('any@email.com', 'any_password')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -71,7 +94,11 @@ describe('Auth UseCase', function () {
   })
 
   it('should throws if LoadUserRepository has no load method', function () {
-    const sut = new AuthUseCase({} as unknown as ILoadUserRepository, {})
+    const sut = new AuthUseCase(
+      {} as unknown as ILoadUserRepository,
+      {},
+      {}
+    )
 
     const promise = sut.auth('any@email.com', 'any_password')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -103,7 +130,11 @@ describe('Auth UseCase', function () {
 
   it('should throws if no Encrypter is provided', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
-    const sut = new AuthUseCase(loadUserRepository, null)
+    const sut = new AuthUseCase(
+      loadUserRepository,
+      null,
+      {}
+    )
 
     const promise = sut.auth('any@email.com', 'any_password')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -112,10 +143,20 @@ describe('Auth UseCase', function () {
 
   it('should throws if Encrypter has no compare method', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
-    const sut = new AuthUseCase(loadUserRepository, {})
+    const sut = new AuthUseCase(
+      loadUserRepository,
+      {},
+      {}
+    )
 
     const promise = sut.auth('any@email.com', 'any_password')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(promise).rejects.toThrow(new InvalidParamError('encrypterSpy'))
+  })
+
+  it('should call TokenGenerator with correct userId', async function () {
+    const { sut, loadUserRepositorySpy, tokenGeneratorSpy } = makeSut()
+    await sut.auth('any@email.com', 'any_password')
+    expect(tokenGeneratorSpy.userId).toBe(loadUserRepositorySpy.user._id)
   })
 })
