@@ -159,4 +159,32 @@ describe('Auth UseCase', function () {
     await sut.auth('any@email.com', 'any_password')
     expect(tokenGeneratorSpy.userId).toBe(loadUserRepositorySpy.user._id)
   })
+
+  it('should throws if no TokenGenerator is provided', function () {
+    const loadUserRepository = makeLoadUserRepositorySpy()
+    const encrypter = makeEncrypterSpy()
+    const sut = new AuthUseCase(
+      loadUserRepository,
+      encrypter,
+      null
+    )
+
+    const promise = sut.auth('any@email.com', 'any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('tokenGenerator'))
+  })
+
+  it('should throws if TokenGenerator has no compare method', function () {
+    const loadUserRepository = makeLoadUserRepositorySpy()
+    const encrypter = makeEncrypterSpy()
+    const sut = new AuthUseCase(
+      loadUserRepository,
+      encrypter,
+      {}
+    )
+
+    const promise = sut.auth('any@email.com', 'any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new InvalidParamError('tokenGenerator'))
+  })
 })

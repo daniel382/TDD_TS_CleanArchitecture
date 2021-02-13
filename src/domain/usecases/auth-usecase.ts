@@ -16,6 +16,8 @@ class AuthUseCase {
     if (!this.loadUserRepository.load) { throw new InvalidParamError('loadUserRepository') }
     if (!this.encrypter) { throw new MissingParamError('encrypterSpy') }
     if (!this.encrypter.compare) { throw new InvalidParamError('encrypterSpy') }
+    if (!this.tokenGenerator) { throw new MissingParamError('tokenGenerator') }
+    if (!this.tokenGenerator.generateToken) { throw new InvalidParamError('tokenGenerator') }
 
     const user = await this.loadUserRepository.load(email)
     if (!user) { return null }
