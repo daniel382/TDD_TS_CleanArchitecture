@@ -16,7 +16,7 @@ function makeSut (): any {
   const authUseCaseSpy = new AuthUseCaseSpy()
   const sut = new LoginRouter(authUseCaseSpy)
 
-  return { sut, authUseCase: authUseCaseSpy }
+  return { sut, authUseCaseSpy }
 }
 
 describe('Login Router', function () {
@@ -59,7 +59,7 @@ describe('Login Router', function () {
   })
 
   it('should call AuthUseCase with correct params', function () {
-    const { sut, authUseCase: authUseCaseSpy } = makeSut()
+    const { sut, authUseCaseSpy } = makeSut()
     const httpRequest = {
       body: {
         email: 'any@email.com',
