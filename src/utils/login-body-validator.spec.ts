@@ -10,7 +10,7 @@ class LoginBodyValidator {
 
 function makeSut (): any {
   const sut = new LoginBodyValidator(validator)
-  return { sut }
+  return { sut, validator }
 }
 
 describe('Login Body Validator', function () {
@@ -27,5 +27,12 @@ describe('Login Body Validator', function () {
     sut.validator.isValid = false
     const isEmailValid = sut.validateEmail('invalid_email')
     expect(isEmailValid).toBe(false)
+  })
+
+  it('should class validator if correct email', function () {
+    const { sut, validator } = makeSut()
+
+    sut.validateEmail('any@email.com')
+    expect(validator.email).toBe('any@email.com')
   })
 })
