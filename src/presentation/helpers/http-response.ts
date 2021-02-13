@@ -1,5 +1,4 @@
-import ServerError from './server-error'
-import UnauthorizedError from './unauthorized-error'
+import { ServerError, UnauthorizedError } from '../errors'
 
 class HttpResponse {
   static success (data: any): any {
