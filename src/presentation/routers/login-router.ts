@@ -18,6 +18,8 @@ class LoginRouter {
     if (!password) { return HttpResponse.badRequest('password') }
 
     this.authUseCase.auth(email, password)
+
+    return HttpResponse.unauthorizedError()
   }
 }
 

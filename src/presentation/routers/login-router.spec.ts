@@ -1,5 +1,6 @@
 import LoginRouter from '@/presentation/routers/login-router'
 import MissingParamError from '@/presentation/helpers/missing-param-error'
+import UnauthorizedError from '../helpers/unauthorized-error'
 
 class AuthUseCaseSpy {
   email: string = ''
@@ -69,5 +70,19 @@ describe('Login Router', function () {
     sut.route(httpRequest)
     expect(authUseCaseSpy.email).toBe(httpRequest.body.email)
     expect(authUseCaseSpy.password).toBe(httpRequest.body.password)
+  })
+
+  it('should return 401 if invalid credentials are provided', function () {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        email: 'invalid@email.com',
+        password: 'invalid_password'
+      }
+    }
+
+    const httpResponse = sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(401)
+    expect(httpResponse.body).toEqual(new UnauthorizedError())
   })
 })
