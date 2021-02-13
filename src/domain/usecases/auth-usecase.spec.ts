@@ -4,13 +4,16 @@ import { InvalidParamError, MissingParamError } from '@/utils/errors'
 class AuthUseCase {
   constructor (private readonly loadUserRepository: ILoadUserRepository) { }
 
-  async auth (email: string, password: string): Promise<string> {
+  async auth (email: string, password: string): Promise<string | null> {
     if (!email) { throw new MissingParamError('email') }
     if (!password) { throw new MissingParamError('password') }
     if (!this.loadUserRepository) { throw new MissingParamError('loadUserRepository') }
     if (!this.loadUserRepository.load) { throw new InvalidParamError('loadUserRepository') }
 
-    await this.loadUserRepository.load(email)
+    const user = await this.loadUserRepository.load(email)
+    if (!user) {
+      return null
+    }
 
     return ''
   }
@@ -28,7 +31,7 @@ function makeLoadUserRepositorySpy (): any {
 
     async load (email: string): Promise<any> {
       this.email = email
-      return {}
+      return null
     }
   }
 
@@ -70,5 +73,11 @@ describe('Auth UseCase', function () {
     const promise = sut.auth('any@email.com', 'any_password')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(promise).rejects.toThrow(new InvalidParamError('loadUserRepository'))
+  })
+
+  it('should return null if LoadUserRepository returns null', async function () {
+    const { sut } = makeSut()
+    const accessToken = await sut.auth('invalid@email.com', 'any_password')
+    expect(accessToken).toBeNull()
   })
 })
