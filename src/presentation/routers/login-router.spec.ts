@@ -2,13 +2,18 @@ import LoginRouter from './login-router'
 import MissingParamError from '../helpers/missing-param-error'
 import ServerError from '../helpers/server-error'
 import UnauthorizedError from '../helpers/unauthorized-error'
+import InvalidParamError from '../helpers/invalid-param-error'
 
 function makeSut (): any {
   const authUseCaseSpy = makeAuthUseCaseSpy()
   authUseCaseSpy.accessToken = 'valid_token'
-  const sut = new LoginRouter(authUseCaseSpy)
 
-  return { sut, authUseCaseSpy }
+  const emailValidator = makeLoginBodyValidatorSpy()
+  emailValidator.isValid = true
+
+  const sut = new LoginRouter(authUseCaseSpy, emailValidator)
+
+  return { sut, authUseCaseSpy, emailValidator }
 }
 
 function makeAuthUseCaseSpy (): any {
@@ -28,6 +33,18 @@ function makeAuthUseCaseSpy (): any {
   return new AuthUseCaseSpy()
 }
 
+function makeLoginBodyValidatorSpy (): any {
+  class LoginBodyValidator {
+    isValid: boolean = false
+
+    validateEmail (email: string): boolean {
+      return this.isValid
+    }
+  }
+
+  return new LoginBodyValidator()
+}
+
 function makeAuthUseCaseSpyWithThrowsInAuthMethod (): any {
   class AuthUseCaseSpy {
     async auth (): Promise<void> {
@@ -39,7 +56,10 @@ function makeAuthUseCaseSpyWithThrowsInAuthMethod (): any {
 }
 
 function makeSutWithInvalidAuthUseCase (authUseCase: any): any {
-  const sut = new LoginRouter(authUseCase)
+  const emailValidator = makeLoginBodyValidatorSpy()
+  emailValidator.isValid = true
+
+  const sut = new LoginRouter(authUseCase, emailValidator)
 
   return { sut }
 }
@@ -70,6 +90,21 @@ describe('Login Router', function () {
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('email'))
+  })
+
+  it('should return 400 if an invalid email is provided', async function () {
+    const { sut, emailValidator } = makeSut()
+    const httpRequest = {
+      body: {
+        email: 'invalid_email',
+        password: 'any_password'
+      }
+    }
+
+    emailValidator.isValid = false
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('email'))
   })
 
   it('should return 400 if no password is provided', async function () {

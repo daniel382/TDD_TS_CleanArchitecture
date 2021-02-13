@@ -1,12 +1,20 @@
 import HttpResponse from '../helpers/http-response'
+import InvalidParamError from '../helpers/invalid-param-error'
 import MissingParamError from '../helpers/missing-param-error'
 
 interface AuthUseCase {
   auth: (email: string, password: string) => string
 }
 
+interface LoginBodyValidator {
+  validateEmail: (email: string) => boolean
+}
+
 class LoginRouter {
-  constructor (private readonly authUseCase: AuthUseCase) {}
+  constructor (
+    private readonly authUseCase: AuthUseCase,
+    private readonly loginBodyValidator: LoginBodyValidator
+  ) {}
 
   async route (httpRequest: any): Promise<HttpResponse> {
     try {
@@ -14,6 +22,10 @@ class LoginRouter {
 
       if (!email) {
         return HttpResponse.badRequest(new MissingParamError('email'))
+      }
+
+      if (!this.loginBodyValidator.validateEmail(email)) {
+        return HttpResponse.badRequest(new InvalidParamError('email'))
       }
 
       if (!password) {
