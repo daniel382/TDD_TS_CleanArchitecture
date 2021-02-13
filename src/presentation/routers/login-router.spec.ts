@@ -1,10 +1,6 @@
 import LoginRouter from './login-router'
-import {
-  MissingParamError,
-  ServerError,
-  UnauthorizedError,
-  InvalidParamError
-} from '../errors'
+import { InvalidParamError, MissingParamError } from '@/utils/errors'
+import { ServerError, UnauthorizedError } from '../errors'
 
 function makeSut (): any {
   const authUseCaseSpy = makeAuthUseCaseSpy()

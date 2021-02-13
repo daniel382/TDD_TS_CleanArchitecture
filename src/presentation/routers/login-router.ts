@@ -1,5 +1,5 @@
 import HttpResponse from '../helpers/http-response'
-import { InvalidParamError, MissingParamError } from '../errors'
+import { InvalidParamError, MissingParamError } from '@/utils/errors'
 import LoginBodyValidator from '@/utils/login-body-validator'
 
 interface AuthUseCase {
