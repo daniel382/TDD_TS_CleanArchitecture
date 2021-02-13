@@ -28,6 +28,16 @@ function makeAuthUseCaseSpy (): any {
   return new AuthUseCaseSpy()
 }
 
+function makeAuthUseCaseSpyWithThrowsInAuthMethod (): any {
+  class AuthUseCaseSpy {
+    auth (): void {
+      throw new Error()
+    }
+  }
+
+  return new AuthUseCaseSpy()
+}
+
 function makeSutWithInvalidAuthUseCase (authUseCase: any): any {
   const sut = new LoginRouter(authUseCase)
 
@@ -144,5 +154,19 @@ describe('Login Router', function () {
     const httpResponse = sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
     expect(httpResponse.body.accessToken).toEqual(authUseCaseSpy.accessToken)
+  })
+
+  test('should return 500 if AuthUseCase.auth throws', function () {
+    const authUseCaseSpy = makeAuthUseCaseSpyWithThrowsInAuthMethod()
+    const { sut } = makeSutWithInvalidAuthUseCase(authUseCaseSpy)
+    const httpRequest = {
+      body: {
+        email: 'any@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
   })
 })
