@@ -1,5 +1,6 @@
 import LoginRouter from './login-router'
 import MissingParamError from '../helpers/missing-param-error'
+import ServerError from '../helpers/server-error'
 import UnauthorizedError from '../helpers/unauthorized-error'
 
 class AuthUseCaseSpy {
@@ -34,12 +35,14 @@ describe('Login Router', function () {
     const { sut } = makeSut()
     const httpResponse = sut.route(null)
     expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
   it('should return 500 if httpRequest has no body', function () {
     const { sut } = makeSut()
     const httpResponse = sut.route({})
     expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
   it('should return 400 if no email is provided', function () {
@@ -108,6 +111,7 @@ describe('Login Router', function () {
 
     const httpResponse = sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
   it('should return 500 if AuthUseCase has no auth method', function () {
@@ -121,6 +125,7 @@ describe('Login Router', function () {
 
     const httpResponse = sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
   it('should return 200 if valid credentials are provided', function () {
