@@ -11,10 +11,11 @@ function makeSut (): any {
 function makeLoadUserRepositorySpy (): any {
   class LoadUserRepositorySpy {
     email: string = ''
+    user: any = {}
 
     async load (email: string): Promise<any> {
       this.email = email
-      return null
+      return this.user
     }
   }
 
@@ -58,8 +59,9 @@ describe('Auth UseCase', function () {
     expect(promise).rejects.toThrow(new InvalidParamError('loadUserRepository'))
   })
 
-  it('should return null if LoadUserRepository returns null', async function () {
-    const { sut } = makeSut()
+  it('should return null if an invalid email is provided', async function () {
+    const { sut, loadUserRepositorySpy } = makeSut()
+    loadUserRepositorySpy.user = null
     const accessToken = await sut.auth('invalid@email.com', 'any_password')
     expect(accessToken).toBeNull()
   })
