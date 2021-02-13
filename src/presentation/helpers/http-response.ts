@@ -1,4 +1,5 @@
-import MissingParamError from '@/presentation/helpers/missing-param-error'
+import MissingParamError from './missing-param-error'
+import UnauthorizedError from './unauthorized-error'
 
 class HttpResponse {
   static badRequest (paramName: string): any {
@@ -10,6 +11,13 @@ class HttpResponse {
 
   static serverError (): any {
     return { statusCode: 500 }
+  }
+
+  static unauthorizedError (): any {
+    return {
+      statusCode: 401,
+      body: new UnauthorizedError()
+    }
   }
 }
 
