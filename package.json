@@ -4,7 +4,8 @@
   "description": "A simple authentication API implemented with typescript and clean architecture.",
   "main": "index.ts",
   "scripts": {
-    "test": "jest --no-cache --watchAll"
+    "test": "jest --no-cache --watchAll",
+    "test:staged": "jest --passWithNoTests"
   },
   "author": "Daniel Lucas <daniellucas382@gmail.com>",
   "license": "MIT",
