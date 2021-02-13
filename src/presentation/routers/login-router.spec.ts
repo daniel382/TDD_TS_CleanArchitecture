@@ -1,5 +1,5 @@
-import LoginRouter from '@/presentation/routers/login-router'
-import MissingParamError from '@/presentation/helpers/missing-param-error'
+import LoginRouter from './login-router'
+import MissingParamError from '../helpers/missing-param-error'
 import UnauthorizedError from '../helpers/unauthorized-error'
 
 class AuthUseCaseSpy {

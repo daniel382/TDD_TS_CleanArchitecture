@@ -1,4 +1,4 @@
-import HttpResponse from '@/presentation/helpers/http-response'
+import HttpResponse from '../helpers/http-response'
 
 interface AuthUseCase {
   auth: (email: string, password: string) => void
