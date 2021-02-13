@@ -2,7 +2,10 @@ import ILoadUserRepository from '@/infra/repositories/load-user-repository-inter
 import { InvalidParamError, MissingParamError } from '@/utils/errors'
 
 class AuthUseCase {
-  constructor (private readonly loadUserRepository: ILoadUserRepository) { }
+  constructor (
+    private readonly loadUserRepository: ILoadUserRepository,
+    private readonly encrypterSpy: any
+  ) { }
 
   async auth (email: string, password: string): Promise<string | null> {
     if (!email) { throw new MissingParamError('email') }
@@ -14,6 +17,8 @@ class AuthUseCase {
     if (!user) {
       return null
     }
+
+    await this.encrypterSpy.compare(password, user.password)
 
     return null
   }
