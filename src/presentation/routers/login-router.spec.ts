@@ -5,15 +5,19 @@ import UnauthorizedError from '../helpers/unauthorized-error'
 class AuthUseCaseSpy {
   email: string = ''
   password: string = ''
+  accessToken: string = ''
 
-  auth (email: string, password: string): void {
+  auth (email: string, password: string): string {
     this.email = email
     this.password = password
+
+    return this.accessToken
   }
 }
 
 function makeSut (): any {
   const authUseCaseSpy = new AuthUseCaseSpy()
+  authUseCaseSpy.accessToken = 'valid_token'
   const sut = new LoginRouter(authUseCaseSpy)
 
   return { sut, authUseCaseSpy }
@@ -79,7 +83,7 @@ describe('Login Router', function () {
   })
 
   it('should return 401 if invalid credentials are provided', function () {
-    const { sut } = makeSut()
+    const { sut, authUseCaseSpy } = makeSut()
     const httpRequest = {
       body: {
         email: 'invalid@email.com',
@@ -87,6 +91,7 @@ describe('Login Router', function () {
       }
     }
 
+    authUseCaseSpy.accessToken = null
     const httpResponse = sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(401)
     expect(httpResponse.body).toEqual(new UnauthorizedError())
@@ -116,5 +121,18 @@ describe('Login Router', function () {
 
     const httpResponse = sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
+  })
+
+  it('should return 200 if valid credentials are provided', function () {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        email: 'valid@email.com',
+        password: 'valid_password'
+      }
+    }
+
+    const httpResponse = sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
   })
 })

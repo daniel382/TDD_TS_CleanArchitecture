@@ -1,7 +1,7 @@
 import HttpResponse from '../helpers/http-response'
 
 interface AuthUseCase {
-  auth: (email: string, password: string) => void
+  auth: (email: string, password: string) => string
 }
 
 class LoginRouter {
@@ -17,9 +17,10 @@ class LoginRouter {
     if (!email) { return HttpResponse.badRequest('email') }
     if (!password) { return HttpResponse.badRequest('password') }
 
-    this.authUseCase.auth(email, password)
+    const accessToken = this.authUseCase.auth(email, password)
+    if (!accessToken) { return HttpResponse.unauthorizedError() }
 
-    return HttpResponse.unauthorizedError()
+    return HttpResponse.success()
   }
 }
 
