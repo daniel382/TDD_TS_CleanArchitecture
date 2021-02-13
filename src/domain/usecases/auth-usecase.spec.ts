@@ -1,5 +1,7 @@
 import ILoadUserRepository from '@/infra/repositories/load-user-repository-interface'
+import IEncrypter from '@/utils/encrypter-interface'
 import { InvalidParamError, MissingParamError } from '@/utils/errors'
+import ITokenGenerator from '@/utils/token-generator-interface'
 import AuthUseCase from './auth-usecase'
 
 function makeSut (): any {
@@ -82,10 +84,12 @@ describe('Auth UseCase', function () {
   })
 
   it('should throws if no LoadUserRepository is provided', function () {
+    const encrypterSpy = makeEncrypterSpy()
+    const tokenGeneratorSpy = makeTokenGeneratorSpy()
     const sut = new AuthUseCase(
       null as unknown as ILoadUserRepository,
-      {},
-      {}
+      encrypterSpy,
+      tokenGeneratorSpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -94,10 +98,12 @@ describe('Auth UseCase', function () {
   })
 
   it('should throws if LoadUserRepository has no load method', function () {
+    const encrypterSpy = makeEncrypterSpy()
+    const tokenGeneratorSpy = makeTokenGeneratorSpy()
     const sut = new AuthUseCase(
       {} as unknown as ILoadUserRepository,
-      {},
-      {}
+      encrypterSpy,
+      tokenGeneratorSpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -130,10 +136,11 @@ describe('Auth UseCase', function () {
 
   it('should throws if no Encrypter is provided', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
+    const tokenGeneratorSpy = makeTokenGeneratorSpy()
     const sut = new AuthUseCase(
       loadUserRepository,
-      null,
-      {}
+      null as unknown as IEncrypter,
+      tokenGeneratorSpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -143,10 +150,11 @@ describe('Auth UseCase', function () {
 
   it('should throws if Encrypter has no compare method', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
+    const tokenGeneratorSpy = makeTokenGeneratorSpy()
     const sut = new AuthUseCase(
       loadUserRepository,
-      {},
-      {}
+      {} as unknown as IEncrypter,
+      tokenGeneratorSpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -166,7 +174,7 @@ describe('Auth UseCase', function () {
     const sut = new AuthUseCase(
       loadUserRepository,
       encrypter,
-      null
+      null as unknown as ITokenGenerator
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -180,7 +188,7 @@ describe('Auth UseCase', function () {
     const sut = new AuthUseCase(
       loadUserRepository,
       encrypter,
-      {}
+      {} as unknown as ITokenGenerator
     )
 
     const promise = sut.auth('any@email.com', 'any_password')

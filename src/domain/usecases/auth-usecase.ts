@@ -1,11 +1,13 @@
 import ILoadUserRepository from '@/infra/repositories/load-user-repository-interface'
+import IEncrypter from '@/utils/encrypter-interface'
+import ITokenGenerator from '@/utils/token-generator-interface'
 import { InvalidParamError, MissingParamError } from '@/utils/errors'
 
 class AuthUseCase {
   constructor (
     private readonly loadUserRepository: ILoadUserRepository,
-    private readonly encrypter: any,
-    private readonly tokenGenerator: any
+    private readonly encrypter: IEncrypter,
+    private readonly tokenGenerator: ITokenGenerator
   ) { }
 
   async auth (email: string, password: string): Promise<string | null> {
