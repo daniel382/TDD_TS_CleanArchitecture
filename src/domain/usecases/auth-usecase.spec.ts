@@ -99,4 +99,22 @@ describe('Auth UseCase', function () {
     expect(encrypterSpy.password).toBe('any_password')
     expect(encrypterSpy.hashedPassword).toBe(loadUserRepositorySpy.user.password)
   })
+
+  it('should throws if no Encrypter is provided', function () {
+    const loadUserRepository = makeLoadUserRepositorySpy()
+    const sut = new AuthUseCase(loadUserRepository, null)
+
+    const promise = sut.auth('any@email.com', 'any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('encrypterSpy'))
+  })
+
+  it('should throws if Encrypter has no compare method', function () {
+    const loadUserRepository = makeLoadUserRepositorySpy()
+    const sut = new AuthUseCase(loadUserRepository, {})
+
+    const promise = sut.auth('any@email.com', 'any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new InvalidParamError('encrypterSpy'))
+  })
 })
