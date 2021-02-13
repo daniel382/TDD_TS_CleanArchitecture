@@ -6,6 +6,10 @@ class AuthUseCase {
       throw new MissingParamError('email')
     }
 
+    if (!password) {
+      throw new MissingParamError('password')
+    }
+
     return ''
   }
 }
@@ -21,5 +25,12 @@ describe('Auth UseCase', function () {
     const promise = sut.auth(null, null)
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(promise).rejects.toThrow(new MissingParamError('email'))
+  })
+
+  it('should throws if no password is provided', function () {
+    const { sut } = makeSut()
+    const promise = sut.auth('any@email.com', null)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('password'))
   })
 })
