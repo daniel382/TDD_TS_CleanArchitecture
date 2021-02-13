@@ -15,7 +15,7 @@ class AuthUseCase {
       return null
     }
 
-    return ''
+    return null
   }
 }
 
