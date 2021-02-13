@@ -64,6 +64,15 @@ function makeSutWithInvalidAuthUseCase (authUseCase: any): any {
   return { sut }
 }
 
+function makeSutWithInvalidLoginBodyValidator (loginBodyValidator: any): any {
+  const authUseCaseSpy = makeAuthUseCaseSpy()
+  authUseCaseSpy.accessToken = 'valid_token'
+
+  const sut = new LoginRouter(authUseCaseSpy, loginBodyValidator)
+
+  return { sut }
+}
+
 describe('Login Router', function () {
   it('should return 500 if no httpRequest is provided', async function () {
     const { sut } = makeSut()
@@ -203,5 +212,19 @@ describe('Login Router', function () {
 
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
+  })
+
+  it('should return 500 if no LoginBodyValidator is provided', async function () {
+    const { sut } = makeSutWithInvalidLoginBodyValidator(null)
+    const httpRequest = {
+      body: {
+        email: 'any@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 })
