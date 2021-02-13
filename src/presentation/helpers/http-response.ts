@@ -2,6 +2,10 @@ import MissingParamError from './missing-param-error'
 import UnauthorizedError from './unauthorized-error'
 
 class HttpResponse {
+  static success (): any {
+    return { statusCode: 200 }
+  }
+
   static badRequest (paramName: string): any {
     return {
       statusCode: 400,
