@@ -3,25 +3,29 @@ import MissingParamError from '../helpers/missing-param-error'
 import ServerError from '../helpers/server-error'
 import UnauthorizedError from '../helpers/unauthorized-error'
 
-class AuthUseCaseSpy {
-  email: string = ''
-  password: string = ''
-  accessToken: string = ''
-
-  auth (email: string, password: string): string {
-    this.email = email
-    this.password = password
-
-    return this.accessToken
-  }
-}
-
 function makeSut (): any {
-  const authUseCaseSpy = new AuthUseCaseSpy()
+  const authUseCaseSpy = makeAuthUseCaseSpy()
   authUseCaseSpy.accessToken = 'valid_token'
   const sut = new LoginRouter(authUseCaseSpy)
 
   return { sut, authUseCaseSpy }
+}
+
+function makeAuthUseCaseSpy (): any {
+  class AuthUseCaseSpy {
+    email: string = ''
+    password: string = ''
+    accessToken: string = ''
+
+    auth (email: string, password: string): string {
+      this.email = email
+      this.password = password
+
+      return this.accessToken
+    }
+  }
+
+  return new AuthUseCaseSpy()
 }
 
 function makeSutWithInvalidAuthUseCase (authUseCase: any): any {
