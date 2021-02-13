@@ -1,12 +1,5 @@
-import validator from '../../__mocks__/validator'
-
-class LoginBodyValidator {
-  constructor (private readonly validator: any) {}
-
-  validateEmail (email: string): boolean {
-    return this.validator.isEmail(email)
-  }
-}
+import LoginBodyValidator from '.'
+import validator from '../../../__mocks__/validator'
 
 function makeSut (): any {
   const sut = new LoginBodyValidator(validator)
