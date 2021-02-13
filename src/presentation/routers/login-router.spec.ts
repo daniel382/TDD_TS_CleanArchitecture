@@ -227,4 +227,18 @@ describe('Login Router', function () {
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
+
+  it('should return 500 if LoginBodyValidator has no validateEmail method', async function () {
+    const { sut } = makeSutWithInvalidLoginBodyValidator({})
+    const httpRequest = {
+      body: {
+        email: 'any@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
 })
