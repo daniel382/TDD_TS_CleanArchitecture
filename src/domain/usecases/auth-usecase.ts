@@ -17,13 +17,12 @@ class AuthUseCase {
     if (!this.encrypterSpy.compare) { throw new InvalidParamError('encrypterSpy') }
 
     const user = await this.loadUserRepository.load(email)
-    if (!user) {
-      return null
-    }
+    if (!user) { return null }
 
-    await this.encrypterSpy.compare(password, user.password)
+    const isEqual = await this.encrypterSpy.compare(password, user.password)
+    if (!isEqual) { return null }
 
-    return null
+    return 'any_token'
   }
 }
 
