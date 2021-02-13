@@ -1,5 +1,5 @@
 class Validator {
-  isValid: boolean = false
+  isValid: boolean = true
   isEmail (email: string): any {
     return this.isValid
   }
