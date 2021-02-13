@@ -1,4 +1,4 @@
-import LoginBodyValidator from '.'
+import LoginBodyValidator from './login-body-validator'
 import validator from '../../../__mocks__/validator'
 
 function makeSut (): any {

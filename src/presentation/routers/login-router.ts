@@ -1,12 +1,12 @@
 import HttpResponse from '../helpers/http-response'
 import { InvalidParamError, MissingParamError } from '@/utils/errors'
-import LoginBodyValidator from '@/utils/login-body-validator'
+import ILoginBodyValidator from '@/utils/login-body-validator/login-body-validator-interface'
 import IAuthUseCase from '@/domain/usecases/auth-usecase-interface'
 
 class LoginRouter {
   constructor (
     private readonly authUseCase: IAuthUseCase,
-    private readonly loginBodyValidator: LoginBodyValidator
+    private readonly loginBodyValidator: ILoginBodyValidator
   ) {}
 
   async route (httpRequest: any): Promise<HttpResponse> {
