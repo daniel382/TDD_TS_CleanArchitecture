@@ -8,12 +8,12 @@ function makeSut (): any {
   const authUseCaseSpy = makeAuthUseCaseSpy()
   authUseCaseSpy.accessToken = 'valid_token'
 
-  const emailValidator = makeLoginBodyValidatorSpy()
-  emailValidator.isValid = true
+  const loginBodyValidator = makeLoginBodyValidatorSpy()
+  loginBodyValidator.isValid = true
 
-  const sut = new LoginRouter(authUseCaseSpy, emailValidator)
+  const sut = new LoginRouter(authUseCaseSpy, loginBodyValidator)
 
-  return { sut, authUseCaseSpy, emailValidator }
+  return { sut, authUseCaseSpy, loginBodyValidator }
 }
 
 function makeAuthUseCaseSpy (): any {
@@ -93,7 +93,7 @@ describe('Login Router', function () {
   })
 
   it('should return 400 if an invalid email is provided', async function () {
-    const { sut, emailValidator } = makeSut()
+    const { sut, loginBodyValidator } = makeSut()
     const httpRequest = {
       body: {
         email: 'invalid_email',
@@ -101,7 +101,7 @@ describe('Login Router', function () {
       }
     }
 
-    emailValidator.isValid = false
+    loginBodyValidator.isValid = false
     const httpResponse = await sut.route(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('email'))
