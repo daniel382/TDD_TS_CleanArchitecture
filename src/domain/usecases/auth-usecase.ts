@@ -27,9 +27,8 @@ class AuthUseCase {
     const isEqual = await this.encrypter.compare(password, user.password)
     if (!isEqual) { return null }
 
-    await this.tokenGenerator.generateToken(user._id)
-
-    return 'any_token'
+    const accessToken = await this.tokenGenerator.generateToken(user._id)
+    return accessToken
   }
 }
 

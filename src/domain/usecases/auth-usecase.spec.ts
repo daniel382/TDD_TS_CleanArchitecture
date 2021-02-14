@@ -50,12 +50,12 @@ function makeEncrypterSpy (): any {
 function makeTokenGeneratorSpy (): any {
   class TokenGeneratorSpy {
     userId: string = ''
-    generatedToken: string = 'any_token'
+    accessToken: string = 'any_token'
 
     async generateToken (userId: string): Promise<string> {
       this.userId = userId
 
-      return this.generatedToken
+      return this.accessToken
     }
   }
 
@@ -194,5 +194,12 @@ describe('Auth UseCase', function () {
     const promise = sut.auth('any@email.com', 'any_password')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(promise).rejects.toThrow(new InvalidParamError('tokenGenerator'))
+  })
+
+  it('should return a access token if valid credentials are provided', async function () {
+    const { sut, tokenGeneratorSpy } = makeSut()
+    const accessToken = await sut.auth('any@email.com', 'any_password')
+    expect(accessToken).toBe(tokenGeneratorSpy.accessToken)
+    expect(accessToken).toBeTruthy()
   })
 })
