@@ -30,6 +30,16 @@ function makeLoadUserRepositorySpy (): any {
   return new LoadUserRepositorySpy()
 }
 
+function makeLoadUserRepositorySpyWithThrow (): any {
+  class LoadUserRepositorySpy {
+    async load (email: string): Promise<any> {
+      throw new Error()
+    }
+  }
+
+  return new LoadUserRepositorySpy()
+}
+
 function makeEncrypterSpy (): any {
   class EncrypterSpy {
     password: string = ''
@@ -47,6 +57,16 @@ function makeEncrypterSpy (): any {
   return new EncrypterSpy()
 }
 
+function makeEncrypterSpyWithThrow (): any {
+  class EncrypterSpy {
+    async compare (password: string, hashedPassword: string): Promise<boolean> {
+      throw new Error()
+    }
+  }
+
+  return new EncrypterSpy()
+}
+
 function makeTokenGeneratorSpy (): any {
   class TokenGeneratorSpy {
     userId: string = ''
@@ -56,6 +76,16 @@ function makeTokenGeneratorSpy (): any {
       this.userId = userId
 
       return this.accessToken
+    }
+  }
+
+  return new TokenGeneratorSpy()
+}
+
+function makeTokenGeneratorSpyWithThrow (): any {
+  class TokenGeneratorSpy {
+    async generateToken (userId: string): Promise<string> {
+      throw new Error()
     }
   }
 
@@ -201,5 +231,22 @@ describe('Auth UseCase', function () {
     const accessToken = await sut.auth('any@email.com', 'any_password')
     expect(accessToken).toBe(tokenGeneratorSpy.accessToken)
     expect(accessToken).toBeTruthy()
+  })
+
+  it('should throw if any dependency throws', function () {
+    const loadUserRepositorySpy = makeLoadUserRepositorySpy()
+    const encrypterSpy = makeEncrypterSpy()
+    const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const suts = new Array<AuthUseCase>().concat(
+      new AuthUseCase(makeLoadUserRepositorySpyWithThrow(), encrypterSpy, tokenGeneratorSpy),
+      new AuthUseCase(loadUserRepositorySpy, makeEncrypterSpyWithThrow(), tokenGeneratorSpy),
+      new AuthUseCase(loadUserRepositorySpy, encrypterSpy, makeTokenGeneratorSpyWithThrow())
+    )
+
+    for (const sut of suts) {
+      const promise = sut.auth('any@email.com', 'any_password')
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      expect(promise).rejects.toThrow()
+    }
   })
 })
