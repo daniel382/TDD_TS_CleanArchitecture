@@ -1,24 +1,9 @@
 import jwt from '../../../__mocks__/jsonwebtoken'
 import { MissingParamError } from '../errors'
-
-class TokenGenerator {
-  secret: string = ''
-
-  constructor (secret: string) {
-    this.secret = secret
-  }
-
-  async generateToken (data: string): Promise<string> {
-    if (!this.secret) { throw new MissingParamError('secret') }
-    if (!data) { throw new MissingParamError('data') }
-
-    const token = await jwt.sign(data, this.secret)
-    return token
-  }
-}
+import TokenGenerator from './token-generator'
 
 function makeSut (): any {
-  const sut = new TokenGenerator('secret')
+  const sut = new TokenGenerator(jwt, 'secret')
 
   return { sut }
 }
@@ -49,7 +34,7 @@ describe('Token Generator', function () {
   })
 
   it('should throw if no secret is provided', function () {
-    const sut = new TokenGenerator(null as unknown as string)
+    const sut = new TokenGenerator(jwt, null as unknown as string)
 
     const promise = sut.generateToken('any_id')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
