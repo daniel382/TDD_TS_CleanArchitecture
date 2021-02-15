@@ -37,4 +37,12 @@ describe('Encrypter', function () {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(promise).rejects.toThrow(new MissingParamError('data'))
   })
+
+  it('should throw if no hash param is provided', function () {
+    const { sut } = makeSut()
+
+    const promise = sut.compare('any_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('hash'))
+  })
 })
