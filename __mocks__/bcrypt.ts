@@ -1,9 +1,11 @@
 class Bcrypt {
   isValid: true = true
   data: string = ''
-  hasg: string = ''
+  hash: string = ''
 
   async compare (data: string, hash: string): Promise<true> {
+    this.data = data
+    this.hash = hash
     return this.isValid
   }
 }

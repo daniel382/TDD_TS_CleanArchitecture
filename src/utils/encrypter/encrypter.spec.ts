@@ -26,4 +26,12 @@ describe('Encrypter', function () {
     const result = await sut.compare('any_password', 'any_hashed_password')
     expect(result).toBe(false)
   })
+
+  it('should call bcrypt with correct values', async function () {
+    const { sut, bcrypt } = makeSut()
+
+    await sut.compare('any_password', 'any_hashed_password')
+    expect(bcrypt.data).toBe('any_password')
+    expect(bcrypt.hash).toBe('any_hashed_password')
+  })
 })
