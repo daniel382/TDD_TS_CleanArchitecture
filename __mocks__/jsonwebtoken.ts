@@ -4,6 +4,9 @@ class JsonWebToken {
   secret: string = ''
 
   sign (data: string, secret: string): any {
+    this.data = data
+    this.secret = secret
+
     return this.token
   }
 }
