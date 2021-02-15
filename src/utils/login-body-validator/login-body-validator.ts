@@ -1,12 +1,12 @@
 class LoginBodyValidator {
-  constructor (private readonly validator: Validator) {}
+  constructor (private readonly validator: IValidator) {}
 
   validateEmail (email: string): boolean {
     return this.validator.isEmail(email)
   }
 }
 
-interface Validator {
+interface IValidator {
   isEmail: (email: string) => boolean
 }
 
