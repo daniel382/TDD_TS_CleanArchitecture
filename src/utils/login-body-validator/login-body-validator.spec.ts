@@ -1,5 +1,6 @@
 import LoginBodyValidator from './login-body-validator'
 import validator from '../../../__mocks__/validator'
+import { MissingParamError } from '../errors'
 
 function makeSut (): any {
   const sut = new LoginBodyValidator(validator)
@@ -27,5 +28,12 @@ describe('Login Body Validator', function () {
 
     sut.validateEmail('any@email.com')
     expect(validator.email).toBe('any@email.com')
+  })
+
+  it('should throw if no email is provided', function () {
+    const { sut } = makeSut()
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(sut.validateEmail).toThrow(new MissingParamError('email'))
   })
 })
