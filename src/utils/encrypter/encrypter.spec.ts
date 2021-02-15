@@ -1,4 +1,5 @@
 import bcrypt from '../../../__mocks__/bcrypt'
+import { MissingParamError } from '../errors'
 import Encrypter from './encrypter'
 
 function makeSut (): any {
@@ -27,5 +28,13 @@ describe('Encrypter', function () {
     await sut.compare('any_password', 'any_hashed_password')
     expect(bcrypt.data).toBe('any_password')
     expect(bcrypt.hash).toBe('any_hashed_password')
+  })
+
+  it('should throw if no data param is provided', function () {
+    const { sut } = makeSut()
+
+    const promise = sut.compare(null, 'any_hashed_password')
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('data'))
   })
 })
