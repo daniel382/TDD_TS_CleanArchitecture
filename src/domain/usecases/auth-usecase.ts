@@ -26,13 +26,14 @@ class AuthUseCase {
     const user = await this.loadUserRepository.load(email)
     if (!user) { return null }
 
-    const isEqual = await this.encrypter.compare(password, user.password)
-    if (!isEqual) { return null }
+    const isPasswordOk = user && await this.encrypter.compare(password, user.password)
+    if (!isPasswordOk) { return null }
 
     const accessToken = await this.tokenGenerator.generateToken(user._id)
-    if (!accessToken) { return null }
+    const isAccessTokenOk = accessToken && await this.updateAccessTokenRepository
+      .updateUserAccessToken(user._id, accessToken)
 
-    await this.updateAccessTokenRepository.updateUserAccessToken(user._id, accessToken)
+    if (!isAccessTokenOk) { return null }
 
     return accessToken
   }
