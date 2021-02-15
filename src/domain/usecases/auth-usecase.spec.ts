@@ -1,6 +1,6 @@
 import ILoadUserRepository from '@/infra/repositories/load-user-repository-interface'
 import IEncrypter from '@/utils/encrypter-interface'
-import { InvalidParamError, MissingParamError } from '@/utils/errors'
+import { MissingParamError } from '@/utils/errors'
 import ITokenGenerator from '@/utils/token-generator-interface'
 import IUpdateAccessTokenRepository from '@/utils/update-access-token-repository-interface'
 import AuthUseCase from './auth-usecase'
@@ -153,22 +153,6 @@ describe('Auth UseCase', function () {
     expect(loadUserRepositorySpy.email).toBe('any@email.com')
   })
 
-  it('should throws if LoadUserRepository has no load method', function () {
-    const encrypterSpy = makeEncrypterSpy()
-    const tokenGeneratorSpy = makeTokenGeneratorSpy()
-    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
-    const sut = new AuthUseCase(
-      {} as unknown as ILoadUserRepository,
-      encrypterSpy,
-      tokenGeneratorSpy,
-      updateAccessTokenRepositorySpy
-    )
-
-    const promise = sut.auth('any@email.com', 'any_password')
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    expect(promise).rejects.toThrow(new InvalidParamError('loadUserRepository'))
-  })
-
   it('should return null if an invalid email is provided', async function () {
     const { sut, loadUserRepositorySpy } = makeSut()
     loadUserRepositorySpy.user = null
@@ -192,42 +176,10 @@ describe('Auth UseCase', function () {
     expect(encrypterSpy.hashedPassword).toBe(loadUserRepositorySpy.user.password)
   })
 
-  it('should throws if Encrypter has no compare method', function () {
-    const loadUserRepository = makeLoadUserRepositorySpy()
-    const tokenGeneratorSpy = makeTokenGeneratorSpy()
-    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
-    const sut = new AuthUseCase(
-      loadUserRepository,
-      {} as unknown as IEncrypter,
-      tokenGeneratorSpy,
-      updateAccessTokenRepositorySpy
-    )
-
-    const promise = sut.auth('any@email.com', 'any_password')
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    expect(promise).rejects.toThrow(new InvalidParamError('encrypterSpy'))
-  })
-
   it('should call TokenGenerator with correct userId', async function () {
     const { sut, loadUserRepositorySpy, tokenGeneratorSpy } = makeSut()
     await sut.auth('any@email.com', 'any_password')
     expect(tokenGeneratorSpy.userId).toBe(loadUserRepositorySpy.user._id)
-  })
-
-  it('should throws if TokenGenerator has no compare method', function () {
-    const loadUserRepository = makeLoadUserRepositorySpy()
-    const encrypter = makeEncrypterSpy()
-    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
-    const sut = new AuthUseCase(
-      loadUserRepository,
-      encrypter,
-      {} as unknown as ITokenGenerator,
-      updateAccessTokenRepositorySpy
-    )
-
-    const promise = sut.auth('any@email.com', 'any_password')
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    expect(promise).rejects.toThrow(new InvalidParamError('tokenGenerator'))
   })
 
   it('should return a access token if valid credentials are provided', async function () {
@@ -295,6 +247,46 @@ describe('Auth UseCase', function () {
     const tokenGeneratorSpy = makeTokenGeneratorSpy()
     const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const invalid = null
+
+    const suts = new Array<AuthUseCase>().concat(
+      new AuthUseCase(
+        invalid as unknown as ILoadUserRepository,
+        encrypterSpy,
+        tokenGeneratorSpy,
+        updateAccessTokenRepositorySpy
+      ),
+      new AuthUseCase(
+        loadUserRepositorySpy,
+        invalid as unknown as IEncrypter,
+        tokenGeneratorSpy,
+        updateAccessTokenRepositorySpy
+      ),
+      new AuthUseCase(
+        loadUserRepositorySpy,
+        encrypterSpy,
+        invalid as unknown as ITokenGenerator,
+        updateAccessTokenRepositorySpy),
+      new AuthUseCase(
+        loadUserRepositorySpy,
+        encrypterSpy,
+        tokenGeneratorSpy,
+        invalid as unknown as IUpdateAccessTokenRepository
+      )
+    )
+
+    for (const sut of suts) {
+      const promise = sut.auth('any@email.com', 'any_password')
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      expect(promise).rejects.toThrow()
+    }
+  })
+
+  it('should throw if any invalid dependency is provided', function () {
+    const loadUserRepositorySpy = makeLoadUserRepositorySpy()
+    const encrypterSpy = makeEncrypterSpy()
+    const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
+    const invalid = {}
 
     const suts = new Array<AuthUseCase>().concat(
       new AuthUseCase(
