@@ -1,6 +1,7 @@
 import ILoadUserRepository from '@/infra/repositories/load-user-repository-interface'
 import IEncrypter from '@/utils/encrypter-interface'
 import ITokenGenerator from '@/utils/token-generator-interface'
+import IUpdateAccessTokenRepository from '@/utils/update-access-token-repository-interface'
 import { InvalidParamError, MissingParamError } from '@/utils/errors'
 
 class AuthUseCase {
@@ -8,7 +9,7 @@ class AuthUseCase {
     private readonly loadUserRepository: ILoadUserRepository,
     private readonly encrypter: IEncrypter,
     private readonly tokenGenerator: ITokenGenerator,
-    private readonly updateAccessTokenRepository: any
+    private readonly updateAccessTokenRepository: IUpdateAccessTokenRepository
   ) { }
 
   async auth (email: string, password: string): Promise<string | null> {
