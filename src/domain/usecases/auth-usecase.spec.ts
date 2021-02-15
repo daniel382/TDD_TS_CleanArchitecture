@@ -121,6 +121,16 @@ function makeUpdateAccessTokenRepositorySpy (): any {
   return new UpdateAccessTokenRepositorySpy()
 }
 
+function makeUpdateAccessTokenRepositorySpyWithThrow (): any {
+  class UpdateAccessTokenRepositorySpyWithThrow {
+    async updateUserAccessToken (userId: string, accessToken: string): Promise<boolean> {
+      throw new Error()
+    }
+  }
+
+  return new UpdateAccessTokenRepositorySpyWithThrow()
+}
+
 describe('Auth UseCase', function () {
   it('should throws if no email is provided', function () {
     const { sut } = makeSut()
@@ -294,9 +304,29 @@ describe('Auth UseCase', function () {
     const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
 
     const suts = new Array<AuthUseCase>().concat(
-      new AuthUseCase(makeLoadUserRepositorySpyWithThrow(), encrypterSpy, tokenGeneratorSpy, updateAccessTokenRepositorySpy),
-      new AuthUseCase(loadUserRepositorySpy, makeEncrypterSpyWithThrow(), tokenGeneratorSpy, updateAccessTokenRepositorySpy),
-      new AuthUseCase(loadUserRepositorySpy, encrypterSpy, makeTokenGeneratorSpyWithThrow(), updateAccessTokenRepositorySpy)
+      new AuthUseCase(
+        makeLoadUserRepositorySpyWithThrow(),
+        encrypterSpy,
+        tokenGeneratorSpy,
+        updateAccessTokenRepositorySpy
+      ),
+      new AuthUseCase(
+        loadUserRepositorySpy,
+        makeEncrypterSpyWithThrow(),
+        tokenGeneratorSpy,
+        updateAccessTokenRepositorySpy
+      ),
+      new AuthUseCase(
+        loadUserRepositorySpy,
+        encrypterSpy,
+        makeTokenGeneratorSpyWithThrow(),
+        updateAccessTokenRepositorySpy),
+      new AuthUseCase(
+        loadUserRepositorySpy,
+        encrypterSpy,
+        tokenGeneratorSpy,
+        makeUpdateAccessTokenRepositorySpyWithThrow()
+      )
     )
 
     for (const sut of suts) {
