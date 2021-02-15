@@ -1,12 +1,15 @@
+import bcrypt from '../../../__mocks__/bcrypt'
+
 class Encrypter {
   async compare (password: string, hashedPassword: string): Promise<boolean> {
-    return true
+    const result = await bcrypt.compare(password, hashedPassword)
+    return result
   }
 }
 
 function makeSut (): any {
   const sut = new Encrypter()
-  return { sut }
+  return { sut, bcrypt }
 }
 
 describe('Encrypter', function () {
@@ -14,5 +17,13 @@ describe('Encrypter', function () {
     const { sut } = makeSut()
     const result = await sut.compare('any_password', 'any_hashed_password')
     expect(result).toBe(true)
+  })
+
+  it('should return false if bcrypt returns false', async function () {
+    const { sut, bcrypt } = makeSut()
+
+    bcrypt.isValid = false
+    const result = await sut.compare('any_password', 'any_hashed_password')
+    expect(result).toBe(false)
   })
 })
