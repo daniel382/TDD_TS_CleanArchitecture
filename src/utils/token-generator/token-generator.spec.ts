@@ -10,6 +10,7 @@ class TokenGenerator {
 
   async generateToken (data: string): Promise<string> {
     if (!this.secret) { throw new MissingParamError('secret') }
+    if (!data) { throw new MissingParamError('data') }
 
     const token = await jwt.sign(data, this.secret)
     return token
@@ -47,11 +48,19 @@ describe('Token Generator', function () {
     expect(jwt.secret).toBe(sut.secret)
   })
 
-  it('should throw JWT if no secret is provided', function () {
+  it('should throw if no secret is provided', function () {
     const sut = new TokenGenerator(null as unknown as string)
 
     const promise = sut.generateToken('any_id')
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(promise).rejects.toThrow(new MissingParamError('secret'))
+  })
+
+  it('should throw if no data is provided', function () {
+    const { sut } = makeSut()
+
+    const promise = sut.generateToken()
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    expect(promise).rejects.toThrow(new MissingParamError('data'))
   })
 })
