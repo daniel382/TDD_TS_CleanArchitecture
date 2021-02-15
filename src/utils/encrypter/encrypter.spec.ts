@@ -1,14 +1,8 @@
 import bcrypt from '../../../__mocks__/bcrypt'
-
-class Encrypter {
-  async compare (password: string, hashedPassword: string): Promise<boolean> {
-    const result = await bcrypt.compare(password, hashedPassword)
-    return result
-  }
-}
+import Encrypter from './encrypter'
 
 function makeSut (): any {
-  const sut = new Encrypter()
+  const sut = new Encrypter(bcrypt)
   return { sut, bcrypt }
 }
 
