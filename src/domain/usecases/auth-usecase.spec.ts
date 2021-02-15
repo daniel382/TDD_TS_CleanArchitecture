@@ -8,9 +8,22 @@ function makeSut (): any {
   const loadUserRepositorySpy = makeLoadUserRepositorySpy()
   const encrypterSpy = makeEncrypterSpy()
   const tokenGeneratorSpy = makeTokenGeneratorSpy()
-  const sut = new AuthUseCase(loadUserRepositorySpy, encrypterSpy, tokenGeneratorSpy)
+  const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
 
-  return { sut, loadUserRepositorySpy, encrypterSpy, tokenGeneratorSpy }
+  const sut = new AuthUseCase(
+    loadUserRepositorySpy,
+    encrypterSpy,
+    tokenGeneratorSpy,
+    updateAccessTokenRepositorySpy
+  )
+
+  return {
+    sut,
+    loadUserRepositorySpy,
+    encrypterSpy,
+    tokenGeneratorSpy,
+    updateAccessTokenRepositorySpy
+  }
 }
 
 function makeLoadUserRepositorySpy (): any {
@@ -92,6 +105,22 @@ function makeTokenGeneratorSpyWithThrow (): any {
   return new TokenGeneratorSpy()
 }
 
+function makeUpdateAccessTokenRepositorySpy (): any {
+  class UpdateAccessTokenRepositorySpy {
+    userId: string = ''
+    accessToken: string = ''
+    isUpdated: boolean = true
+
+    async updateUserAccessToken (userId: string, accessToken: string): Promise<boolean> {
+      this.userId = userId
+      this.accessToken = accessToken
+      return this.isUpdated
+    }
+  }
+
+  return new UpdateAccessTokenRepositorySpy()
+}
+
 describe('Auth UseCase', function () {
   it('should throws if no email is provided', function () {
     const { sut } = makeSut()
@@ -116,10 +145,12 @@ describe('Auth UseCase', function () {
   it('should throws if no LoadUserRepository is provided', function () {
     const encrypterSpy = makeEncrypterSpy()
     const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const sut = new AuthUseCase(
       null as unknown as ILoadUserRepository,
       encrypterSpy,
-      tokenGeneratorSpy
+      tokenGeneratorSpy,
+      updateAccessTokenRepositorySpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -130,10 +161,12 @@ describe('Auth UseCase', function () {
   it('should throws if LoadUserRepository has no load method', function () {
     const encrypterSpy = makeEncrypterSpy()
     const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const sut = new AuthUseCase(
       {} as unknown as ILoadUserRepository,
       encrypterSpy,
-      tokenGeneratorSpy
+      tokenGeneratorSpy,
+      updateAccessTokenRepositorySpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -167,10 +200,12 @@ describe('Auth UseCase', function () {
   it('should throws if no Encrypter is provided', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
     const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const sut = new AuthUseCase(
       loadUserRepository,
       null as unknown as IEncrypter,
-      tokenGeneratorSpy
+      tokenGeneratorSpy,
+      updateAccessTokenRepositorySpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -181,10 +216,12 @@ describe('Auth UseCase', function () {
   it('should throws if Encrypter has no compare method', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
     const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const sut = new AuthUseCase(
       loadUserRepository,
       {} as unknown as IEncrypter,
-      tokenGeneratorSpy
+      tokenGeneratorSpy,
+      updateAccessTokenRepositorySpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -201,10 +238,12 @@ describe('Auth UseCase', function () {
   it('should throws if no TokenGenerator is provided', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
     const encrypter = makeEncrypterSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const sut = new AuthUseCase(
       loadUserRepository,
       encrypter,
-      null as unknown as ITokenGenerator
+      null as unknown as ITokenGenerator,
+      updateAccessTokenRepositorySpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -215,10 +254,12 @@ describe('Auth UseCase', function () {
   it('should throws if TokenGenerator has no compare method', function () {
     const loadUserRepository = makeLoadUserRepositorySpy()
     const encrypter = makeEncrypterSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
     const sut = new AuthUseCase(
       loadUserRepository,
       encrypter,
-      {} as unknown as ITokenGenerator
+      {} as unknown as ITokenGenerator,
+      updateAccessTokenRepositorySpy
     )
 
     const promise = sut.auth('any@email.com', 'any_password')
@@ -233,14 +274,29 @@ describe('Auth UseCase', function () {
     expect(accessToken).toBeTruthy()
   })
 
+  it('should call UpdateAccessTokenRepository with correct values', async function () {
+    const {
+      sut,
+      loadUserRepositorySpy,
+      tokenGeneratorSpy,
+      updateAccessTokenRepositorySpy
+    } = makeSut()
+
+    await sut.auth('any@email.com', 'any_password')
+    expect(updateAccessTokenRepositorySpy.userId).toBe(loadUserRepositorySpy.user._id)
+    expect(updateAccessTokenRepositorySpy.accessToken).toBe(tokenGeneratorSpy.accessToken)
+  })
+
   it('should throw if any dependency throws', function () {
     const loadUserRepositorySpy = makeLoadUserRepositorySpy()
     const encrypterSpy = makeEncrypterSpy()
     const tokenGeneratorSpy = makeTokenGeneratorSpy()
+    const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepositorySpy()
+
     const suts = new Array<AuthUseCase>().concat(
-      new AuthUseCase(makeLoadUserRepositorySpyWithThrow(), encrypterSpy, tokenGeneratorSpy),
-      new AuthUseCase(loadUserRepositorySpy, makeEncrypterSpyWithThrow(), tokenGeneratorSpy),
-      new AuthUseCase(loadUserRepositorySpy, encrypterSpy, makeTokenGeneratorSpyWithThrow())
+      new AuthUseCase(makeLoadUserRepositorySpyWithThrow(), encrypterSpy, tokenGeneratorSpy, updateAccessTokenRepositorySpy),
+      new AuthUseCase(loadUserRepositorySpy, makeEncrypterSpyWithThrow(), tokenGeneratorSpy, updateAccessTokenRepositorySpy),
+      new AuthUseCase(loadUserRepositorySpy, encrypterSpy, makeTokenGeneratorSpyWithThrow(), updateAccessTokenRepositorySpy)
     )
 
     for (const sut of suts) {

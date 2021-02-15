@@ -7,7 +7,8 @@ class AuthUseCase {
   constructor (
     private readonly loadUserRepository: ILoadUserRepository,
     private readonly encrypter: IEncrypter,
-    private readonly tokenGenerator: ITokenGenerator
+    private readonly tokenGenerator: ITokenGenerator,
+    private readonly updateAccessTokenRepository: any
   ) { }
 
   async auth (email: string, password: string): Promise<string | null> {
@@ -28,6 +29,10 @@ class AuthUseCase {
     if (!isEqual) { return null }
 
     const accessToken = await this.tokenGenerator.generateToken(user._id)
+    if (!accessToken) { return null }
+
+    await this.updateAccessTokenRepository.updateUserAccessToken(user._id, accessToken)
+
     return accessToken
   }
 }
