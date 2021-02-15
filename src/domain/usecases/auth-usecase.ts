@@ -1,6 +1,6 @@
 import ILoadUserRepository from '@/infra/repositories/load-user-repository-interface'
 import IEncrypter from '@/utils/encrypter/encrypter-interface'
-import ITokenGenerator from '@/utils/token-generator-interface'
+import ITokenGenerator from '@/utils/token-generator/token-generator-interface'
 import IUpdateAccessTokenRepository from '@/utils/update-access-token-repository-interface'
 import { InvalidParamError, MissingParamError } from '@/utils/errors'
 
